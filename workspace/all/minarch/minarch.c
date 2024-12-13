@@ -3120,7 +3120,7 @@ static int Menu_message(char* message, char** pairs) {
 		GFX_startFrame();
 		PAD_poll();
 
-		if (PAD_justPressed(BTN_A) || PAD_justPressed(BTN_B)) break;
+		if (PAD_justPressed(BTN_MENU_ACCEPT) || PAD_justPressed(BTN_MENU_CANCEL)) break;
 		
 		PWR_update(&dirty, NULL, Menu_beforeSleep, Menu_afterSleep);
 		
@@ -3637,10 +3637,10 @@ static int Menu_options(MenuList* list) {
 		}
 		
 		// uint32_t now = SDL_GetTicks();
-		if (PAD_justPressed(BTN_B)) { // || PAD_tappedMenu(now)
+		if (PAD_justPressed(BTN_MENU_CANCEL)) { // || PAD_tappedMenu(now)
 			show_options = 0;
 		}
-		else if (PAD_justPressed(BTN_A)) {
+		else if (PAD_justPressed(BTN_MENU_ACCEPT)) {
 			MenuItem* item = &items[selected];
 			int result = MENU_CALLBACK_NOP;
 			if (item->on_confirm) result = item->on_confirm(list, selected); // item-specific action, eg. Save for all games
@@ -4282,11 +4282,11 @@ static void Menu_loop(void) {
 			Menu_updateState();
 		}
 		
-		if (PAD_justPressed(BTN_B) || (BTN_WAKE!=BTN_MENU && PAD_tappedMenu(now))) {
+		if (PAD_justPressed(BTN_MENU_CANCEL) || (BTN_WAKE!=BTN_MENU && PAD_tappedMenu(now))) {
 			status = STATUS_CONT;
 			show_menu = 0;
 		}
-		else if (PAD_justPressed(BTN_A)) {
+		else if (PAD_justPressed(BTN_MENU_ACCEPT)) {
 			switch(selected) {
 				case ITEM_CONT:
 				if (menu.total_discs && rom_disc!=menu.disc) {

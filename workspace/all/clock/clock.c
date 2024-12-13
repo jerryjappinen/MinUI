@@ -213,11 +213,11 @@ int main(int argc , char* argv[]) {
 			select_cursor++;
 			if (select_cursor >= option_count) select_cursor -= option_count;
 		}
-		else if (PAD_justPressed(BTN_A)) {
+		else if (PAD_justPressed(BTN_MENU_ACCEPT)) {
 			save_changes = 1;
 			quit = 1;
 		}
-		else if (PAD_justPressed(BTN_B)) {
+		else if (PAD_justPressed(BTN_MENU_CANCEL)) {
 			quit = 1;
 		}
 		else if (PAD_justPressed(BTN_SELECT)) {

@@ -1338,7 +1338,7 @@ int main (int argc, char *argv[]) {
 		was_online = is_online;
 		
 		if (show_version) {
-			if (PAD_justPressed(BTN_B) || PAD_tappedMenu(now)) {
+			if (PAD_justPressed(BTN_MENU_CANCEL) || PAD_tappedMenu(now)) {
 				show_version = 0;
 				dirty = 1;
 				if (!HAS_POWER_BUTTON && !simple_mode) PWR_disableSleep();
@@ -1449,19 +1449,19 @@ int main (int argc, char *argv[]) {
 	
 			if (dirty && total>0) readyResume(top->entries->items[top->selected]);
 
-			if (total>0 && can_resume && PAD_justReleased(BTN_A)) {
+			if (total>0 && can_resume && PAD_justReleased(BTN_MENU_ACCEPT)) {
 				should_resume = 1;
 				Entry_open(top->entries->items[top->selected]);
 				dirty = 1;
 			}
-			else if (total>0 && (PAD_justPressed(BTN_A) || PAD_justPressed(BTN_FORCE_BOOT_GAME))) {
+			else if (total>0 && (PAD_justPressed(BTN_MENU_ACCEPT) || PAD_justPressed(BTN_FORCE_BOOT_GAME))) {
 				Entry_open(top->entries->items[top->selected]);
 				total = top->entries->count;
 				dirty = 1;
 
 				if (total>0) readyResume(top->entries->items[top->selected]);
 			}
-			else if (PAD_justPressed(BTN_B) && stack->count>1) {
+			else if (PAD_justPressed(BTN_MENU_CANCEL) && stack->count>1) {
 				closeDirectory();
 				total = top->entries->count;
 				dirty = 1;

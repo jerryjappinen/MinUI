@@ -22,8 +22,8 @@ int main(int argc , char* argv[]) {
 		uint32_t frame_start = SDL_GetTicks();
 		
 		PAD_poll();
-		if (PAD_justPressed(BTN_A)) quit = 1;
-		if (PAD_justPressed(BTN_B)) GFX_clear(screen);
+		if (PAD_justPressed(BTN_MENU_ACCEPT)) quit = 1;
+		if (PAD_justPressed(BTN_MENU_CANCEL)) GFX_clear(screen);
 		
 		float rx = (float)pad.laxis.x / 32768;
 		float ry = (float)pad.laxis.y / 32768;

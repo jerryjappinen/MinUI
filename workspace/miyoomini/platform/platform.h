@@ -92,6 +92,8 @@
 ///////////////////////////////
 
 extern int is_plus;
+#define BTN_MENU_ACCEPT	    BTN_A
+#define BTN_MENU_CANCEL	    BTN_B
 #define BTN_FORCE_BOOT_GAME BTN_X
 #define BTN_SLEEP 			BTN_POWER
 #define BTN_WAKE 			BTN_POWER
