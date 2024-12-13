@@ -1449,12 +1449,12 @@ int main (int argc, char *argv[]) {
 	
 			if (dirty && total>0) readyResume(top->entries->items[top->selected]);
 
-			if (total>0 && can_resume && PAD_justReleased(BTN_RESUME)) {
+			if (total>0 && can_resume && PAD_justReleased(BTN_A)) {
 				should_resume = 1;
 				Entry_open(top->entries->items[top->selected]);
 				dirty = 1;
 			}
-			else if (total>0 && PAD_justPressed(BTN_A)) {
+			else if (total>0 && (PAD_justPressed(BTN_A) || PAD_justPressed(BTN_FORCE_BOOT_GAME))) {
 				Entry_open(top->entries->items[top->selected]);
 				total = top->entries->count;
 				dirty = 1;
@@ -1636,7 +1636,7 @@ int main (int argc, char *argv[]) {
 			
 				// buttons
 				if (show_setting && !GetHDMI()) GFX_blitHardwareHints(screen, show_setting);
-				else if (can_resume) GFX_blitButtonGroup((char*[]){ "X","RESUME",  NULL }, 0, screen, 0);
+				else if (can_resume) GFX_blitButtonGroup((char*[]){ "X","REBOOT",  NULL }, 0, screen, 0);
 				else GFX_blitButtonGroup((char*[]){ 
 					BTN_SLEEP==BTN_POWER?"POWER":"MENU",
 					BTN_SLEEP==BTN_POWER||simple_mode?"SLEEP":"INFO",  

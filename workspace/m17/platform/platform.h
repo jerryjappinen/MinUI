@@ -94,7 +94,7 @@
 
 ///////////////////////////////
 
-#define BTN_RESUME 			BTN_X
+#define BTN_FORCE_BOOT_GAME BTN_X
 #define BTN_SLEEP 			BTN_MENU
 #define BTN_WAKE 			BTN_MENU
 #define BTN_MOD_VOLUME 		BTN_SELECT
