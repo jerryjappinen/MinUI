@@ -139,7 +139,6 @@ package: tidy
 		
 	# move formatted readmes from workspace to build
 	cp ./workspace/readmes/BASE-out.txt ./build/BASE/README.txt
-	cp ./workspace/readmes/EXTRAS-out.txt ./build/EXTRAS/README.txt
 	rm -rf ./workspace/readmes
 	
 	cd ./build/SYSTEM && echo "$(RELEASE_NAME)\n$(BUILD_HASH)" > version.txt
@@ -154,8 +153,7 @@ package: tidy
 	mv ./build/PAYLOAD/MinUI.zip ./build/BASE
 	
 	# TODO: can I just add everything in BASE to zip?
-	cd ./build/BASE && zip -r ../../releases/$(RELEASE_NAME)-base.zip Bios Roms Saves miyoo miyoo354 trimui rg35xx rg35xxplus gkdpixel em_ui.sh MinUI.zip README.txt
-	cd ./build/EXTRAS && zip -r ../../releases/$(RELEASE_NAME)-extras.zip Bios Emus Roms Saves Tools README.txt
+	cd ./build/BASE && zip -r ../../releases/$(RELEASE_NAME)-base.zip Bios Emus Roms Saves Tools miyoo miyoo354 trimui rg35xx rg35xxplus gkdpixel em_ui.sh MinUI.zip README.txt
 	echo "$(RELEASE_NAME)" > ./build/latest.txt
 	
 ###########################################################

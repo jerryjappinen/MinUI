@@ -1,4 +1,4 @@
-MinUI is a minimal launcher for the Trimui Smart (and Pro) and Brick, the Miyoo Mini (and Plus) and A30, the Powkiddy RGB30, the M17, the MagicX XU Mini M, and the Anbernic RG*XX family--all from the same SD card. Why? Why not?
+MinUI is a minimal launcher for retro devices. You can use the same SD card on multiple devices.
 
 Source:
 https://github.com/shauninman/minui
@@ -81,7 +81,7 @@ Updating
 
 ALL
 
-Copy "MinUI.zip" (without unzipping) to the root of the SD card containing your Roms.
+Copy "MinUI.zip" (without unzipping) to the root of the SD card containing your Roms. Copy updated pak(s) to the corresponding device folder in the Emus or Tools folders (eg. /Emus/tg5040 or /Tools/rgb30)
 
 ----------------------------------------
 Shortcuts
@@ -137,12 +137,16 @@ Bios file names are case-sensitive:
    FC: disksys.rom
    GB: gb_bios.bin
   GBA: gba_bios.bin
+ MGBA: gba_bios.bin
   GBC: gbc_bios.bin
    MD: bios_CD_E.bin
        bios_CD_J.bin
-	   bios_CD_U.bin
+	     bios_CD_U.bin
+  PCE: syscard3.pce
+  PKM: bios.min
    PS: psxonpsp660.bin
-	
+  SGB: sgb.bios
+
 ----------------------------------------
 Disc-based games
 
@@ -181,7 +185,6 @@ A collection is just a text file containing an ordered list of full paths to rom
   /Roms/GBA/Metroid Fusion.gba
 
 ----------------------------------------
-
 Display names
 
 Certain (unsupported arcade) cores require roms to use arcane file names. You can override the display name used throughout MinUI by creating a map.txt in the same folder as the files you want to rename. One line per file, `rom.ext` followed by a single tab followed by `Display Name`. You can hide a file by adding a `.` at the beginning of the display name. eg.
@@ -199,6 +202,46 @@ Not simple enough for you (or maybe your kids)? MinUI has a simple mode that hid
 Advanced
 
 MinUI can automatically run a user-authored shell script on boot. Just place a file named "auto.sh" in "/.userdata/<DEVICE>/".
+
+----------------------------------------
+Native PICO-8 and Splore.pak (RGB30-only)
+
+Download the official PICO-8 fantasy console for the Raspberry Pi from https://lexaloffle.itch.io/pico-8 (If you've bought a bundle on itch.io any time in the last few years you might already have a copy in your library https://itch.io/my-collections) At the time of writing, the file is named "pico-8_0.2.5g_raspi.zip". Copy that zip file into "/Tools/rgb30/Splore.pak/". Copy "/Emus/rgb30/P8-NATIVE.pak", "/Tools/rgb30/Splore.pak", and "/Tools/rgb30/Wi-Fi.pak" to your SD card. (You need the Wi-Fi.pak to download PICO-8 games in Splore.pak.)
+
+Place carts you would like to play with native PICO-8 in "/Roms/Pico-8 (P8-NATIVE)/".
+
+To exit P8-NATIVE.pak, press start. Then select "SHUTDOWN".
+
+To exit Splore.pak, press start. In-game select "EXIT TO SPLORE". With a cart selected in splore press start, select "OPTIONS", and then "SHUTDOWN PICO-8". 
+
+Please note that Splore.pak and P8-NATIVE.pak don't/can't implement MinUI's uniform features like the in-game menu (including save states), faux sleep, and quicksave/auto-resume.
+
+
+
+----------------------------------------
+Tools
+
+----------------------------------------
+Wi-Fi.pak (RGB30-only)
+
+Open "wifi.txt" in a plain text editor and enter your network name and password on two separate lines and save, eg.
+
+  minui
+  lessismore
+
+Copy "Wi-Fi.pak" to "/Tools/rgb30/" on your SD card. The first time you open the pak (or any time you change the contents of "wifi.txt") it will update the network name and password then connect. Subsequent launches will toggle wi-fi on and off. Wi-fi will drain the battery so it's best to only enable it when you plan to use it and disable it when you're done. Your Wi-fi state persists across reboots.
+
+----------------------------------------
+Remove Loading.pak (Miyoo A30-only)
+
+This pak removes the "LOADING" text that appears between the boot logo and the main interface when powering on. It requires patching nand memory to modify the otherwise read-only root file system. It takes around 5 minutes to complete. While not required it is a very good idea to be connected to power while performing this operation. Please be patient and do not power off the device before it completes.
+
+----------------------------------------
+Remove Loading.pak (Trimui Smart Pro-only)
+
+This pak removes the "LOADING" text that appears between the boot logo and the main interface when powering on. Compared to the A-30 this is a minimally invasive procedure. Nothing to worry about.
+
+
 
 ----------------------------------------
 Thanks
