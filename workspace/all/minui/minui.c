@@ -55,7 +55,7 @@ static void Array_reverse(Array* self) {
 	}
 }
 static void Array_free(Array* self) {
-	free(self->items); 
+	free(self->items);
 	free(self);
 }
 
@@ -200,7 +200,7 @@ static void getUniqueName(Entry* entry, char* out_name) {
 	char* filename = strrchr(entry->path, '/')+1;
 	char emu_tag[256];
 	getEmuName(entry->path, emu_tag);
-	
+
 	char *tmp;
 	strcpy(out_name, entry->name);
 	tmp = out_name + strlen(out_name);
@@ -213,7 +213,7 @@ static void getUniqueName(Entry* entry, char* out_name) {
 
 static void Directory_index(Directory* self) {
 	int skip_index = exactMatch(FAUX_RECENT_PATH, self->path) || prefixMatch(COLLECTIONS_PATH, self->path); // not alphabetized
-	
+
 	Hash* map = NULL;
 	char map_path[256];
 	sprintf(map_path, "%s/map.txt", self->path);
@@ -236,7 +236,7 @@ static void Directory_index(Directory* self) {
 				}
 			}
 			fclose(file);
-			
+
 			int resort = 0;
 			int filter = 0;
 			for (int i=0; i<self->entries->count; i++) {
@@ -250,7 +250,7 @@ static void Directory_index(Directory* self) {
 					if (!filter && hide(entry->name)) filter = 1;
 				}
 			}
-			
+
 			if (filter) {
 				Array* entries = Array_new();
 				for (int i=0; i<self->entries->count; i++) {
@@ -268,7 +268,7 @@ static void Directory_index(Directory* self) {
 			if (resort) EntryArray_sort(self->entries);
 		}
 	}
-	
+
 	Entry* prior = NULL;
 	int alpha = -1;
 	int index = 0;
@@ -282,11 +282,11 @@ static void Directory_index(Directory* self) {
 				entry->name = strdup(alias);
 			}
 		}
-		
+
 		if (prior!=NULL && exactMatch(prior->name, entry->name)) {
 			if (prior->unique) free(prior->unique);
 			if (entry->unique) free(entry->unique);
-			
+
 			char* prior_filename = strrchr(prior->path, '/')+1;
 			char* entry_filename = strrchr(entry->path, '/')+1;
 			if (exactMatch(prior_filename, entry_filename)) {
@@ -294,7 +294,7 @@ static void Directory_index(Directory* self) {
 				char entry_unique[256];
 				getUniqueName(prior, prior_unique);
 				getUniqueName(entry, entry_unique);
-				
+
 				prior->unique = strdup(prior_unique);
 				entry->unique = strdup(entry_unique);
 			}
@@ -313,10 +313,10 @@ static void Directory_index(Directory* self) {
 			}
 			entry->alpha = index;
 		}
-		
+
 		prior = entry;
 	}
-	
+
 	if (map) Hash_free(map);
 }
 
@@ -329,7 +329,7 @@ static Array* getEntries(char* path);
 static Directory* Directory_new(char* path, int selected) {
 	char display_name[256];
 	getDisplayName(path, display_name);
-	
+
 	Directory* self = malloc(sizeof(Directory));
 	self->path = strdup(path);
 	self->name = strdup(display_name);
@@ -390,7 +390,7 @@ static Recent* Recent_new(char* path, char* alias) {
 
 	char emu_name[256];
 	getEmuName(sd_path, emu_name);
-	
+
 	self->path = strdup(path);
 	self->alias = alias ? strdup(alias) : NULL;
 	self->available = hasEmu(emu_name);
@@ -426,6 +426,7 @@ static int quit = 0;
 static int can_resume = 0;
 static int should_resume = 0; // set to 1 on BTN_RESUME but only if can_resume==1
 static int simple_mode = 0;
+static int main_row_count = (SHOW_BUTTON_HINTS ? MAIN_ROW_COUNT : MAIN_ROW_COUNT + 1);
 static char slot_path[256];
 
 static int restore_depth = -1;
@@ -486,38 +487,38 @@ static int hasCue(char* dir_path, char* cue_path) { // NOTE: dir_path not rom_pa
 }
 static int hasM3u(char* rom_path, char* m3u_path) { // NOTE: rom_path not dir_path
 	char* tmp;
-	
+
 	strcpy(m3u_path, rom_path);
 	tmp = strrchr(m3u_path, '/') + 1;
 	tmp[0] = '\0';
-	
+
 	// path to parent directory
 	char base_path[256];
 	strcpy(base_path, m3u_path);
-	
+
 	tmp = strrchr(m3u_path, '/');
 	tmp[0] = '\0';
-	
+
 	// get parent directory name
 	char dir_name[256];
 	tmp = strrchr(m3u_path, '/');
 	strcpy(dir_name, tmp);
-	
+
 	// dir_name is also our m3u file name
-	tmp = m3u_path + strlen(m3u_path); 
+	tmp = m3u_path + strlen(m3u_path);
 	strcpy(tmp, dir_name);
 
 	// add extension
 	tmp = m3u_path + strlen(m3u_path);
 	strcpy(tmp, ".m3u");
-	
+
 	return exists(m3u_path);
 }
 
 static int hasRecents(void) {
 	LOG_info("hasRecents %s\n", RECENT_PATH);
 	int has = 0;
-	
+
 	Array* parent_paths = Array_new();
 	if (exists(CHANGE_DISC_PATH)) {
 		char sd_path[256];
@@ -527,7 +528,7 @@ static int hasRecents(void) {
 			Recent* recent = Recent_new(disc_path, NULL);
 			if (recent->available) has += 1;
 			Array_push(recents, recent);
-		
+
 			char parent_path[256];
 			strcpy(parent_path, disc_path);
 			char* tmp = strrchr(parent_path, '/') + 1;
@@ -536,7 +537,7 @@ static int hasRecents(void) {
 		}
 		unlink(CHANGE_DISC_PATH);
 	}
-	
+
 	FILE* file = fopen(RECENT_PATH, "r"); // newest at top
 	if (file) {
 		char line[256];
@@ -544,9 +545,9 @@ static int hasRecents(void) {
 			normalizeNewline(line);
 			trimTrailingNewlines(line);
 			if (strlen(line)==0) continue; // skip empty lines
-			
+
 			// LOG_info("line: %s\n", line);
-			
+
 			char* path = line;
 			char* alias = NULL;
 			char* tmp = strchr(line,'\t');
@@ -554,7 +555,7 @@ static int hasRecents(void) {
 				tmp[0] = '\0';
 				alias = tmp+1;
 			}
-			
+
 			char sd_path[256];
 			sprintf(sd_path, "%s%s", SDCARD_PATH, path);
 			if (exists(sd_path)) {
@@ -566,7 +567,7 @@ static int hasRecents(void) {
 						strcpy(parent_path, path);
 						char* tmp = strrchr(parent_path, '/') + 1;
 						tmp[0] = '\0';
-						
+
 						int found = 0;
 						for (int i=0; i<parent_paths->count; i++) {
 							char* path = parent_paths->items[i];
@@ -576,12 +577,12 @@ static int hasRecents(void) {
 							}
 						}
 						if (found) continue;
-						
+
 						Array_push(parent_paths, strdup(parent_path));
 					}
-					
+
 					// LOG_info("path:%s alias:%s\n", path, alias);
-					
+
 					Recent* recent = Recent_new(path, alias);
 					if (recent->available) has += 1;
 					Array_push(recents, recent);
@@ -590,16 +591,16 @@ static int hasRecents(void) {
 		}
 		fclose(file);
 	}
-	
+
 	saveRecents();
-	
+
 	StringArray_free(parent_paths);
 	return has>0;
 }
 static int hasCollections(void) {
 	int has = 0;
 	if (!exists(COLLECTIONS_PATH)) return has;
-	
+
 	DIR *dh = opendir(COLLECTIONS_PATH);
 	struct dirent *dp;
 	while((dp = readdir(dh)) != NULL) {
@@ -616,10 +617,10 @@ static int hasRoms(char* dir_name) {
 	char rom_path[256];
 
 	getEmuName(dir_name, emu_name);
-	
+
 	// check for emu pak
 	if (!hasEmu(emu_name)) return has;
-	
+
 	// check for at least one non-hidden file (we're going to assume it's a rom)
 	sprintf(rom_path, "%s/%s/", ROMS_PATH, dir_name);
 	DIR *dh = opendir(rom_path);
@@ -637,9 +638,9 @@ static int hasRoms(char* dir_name) {
 }
 static Array* getRoot(void) {
 	Array* root = Array_new();
-	
+
 	if (hasRecents()) Array_push(root, Entry_new(FAUX_RECENT_PATH, ENTRY_DIR));
-	
+
 	Array* entries = Array_new();
 	DIR* dh = opendir(ROMS_PATH);
 	if (dh!=NULL) {
@@ -672,7 +673,7 @@ static Array* getRoot(void) {
 		Array_free(emus); // just free the array part, entries now owns emus entries
 		closedir(dh);
 	}
-	
+
 	// copied/modded from Directory_index
 	// we don't support hidden remaps here
 	char map_path[256];
@@ -696,7 +697,7 @@ static Array* getRoot(void) {
 				}
 			}
 			fclose(file);
-			
+
 			int resort = 0;
 			for (int i=0; i<entries->count; i++) {
 				Entry* entry = entries->items[i];
@@ -707,12 +708,12 @@ static Array* getRoot(void) {
 					entry->name = strdup(alias);
 					resort = 1;
 				}
-			} 
+			}
 			if (resort) EntryArray_sort(entries);
 			Hash_free(map);
 		}
 	}
-	
+
 	if (hasCollections()) {
 		if (entries->count) Array_push(root, Entry_new(COLLECTIONS_PATH, ENTRY_DIR));
 		else { // no visible systems, promote collections to root
@@ -738,16 +739,16 @@ static Array* getRoot(void) {
 			}
 		}
 	}
-	
+
 	// add systems to root
 	for (int i=0; i<entries->count; i++) {
 		Array_push(root, entries->items[i]);
 	}
 	Array_free(entries); // root now owns entries' entries
-	
+
 	char* tools_path = SDCARD_PATH "/Tools/" PLATFORM;
 	if (exists(tools_path) && !simple_mode) Array_push(root, Entry_new(tools_path, ENTRY_DIR));
-	
+
 	return root;
 }
 static Array* getRecents(void) {
@@ -755,7 +756,7 @@ static Array* getRecents(void) {
 	for (int i=0; i<recents->count; i++) {
 		Recent* recent = recents->items[i];
 		if (!recent->available) continue;
-		
+
 		char sd_path[256];
 		sprintf(sd_path, "%s%s", SDCARD_PATH, recent->path);
 		int type = suffixMatch(".pak", sd_path) ? ENTRY_PAK : ENTRY_ROM; // ???
@@ -777,13 +778,13 @@ static Array* getCollection(char* path) {
 			normalizeNewline(line);
 			trimTrailingNewlines(line);
 			if (strlen(line)==0) continue; // skip empty lines
-			
+
 			char sd_path[256];
 			sprintf(sd_path, "%s%s", SDCARD_PATH, line);
 			if (exists(sd_path)) {
 				int type = suffixMatch(".pak", sd_path) ? ENTRY_PAK : ENTRY_ROM; // ???
 				Array_push(entries, Entry_new(sd_path, type));
-				
+
 				// char emu_name[256];
 				// getEmuName(sd_path, emu_name);
 				// if (hasEmu(emu_name)) {
@@ -796,16 +797,16 @@ static Array* getCollection(char* path) {
 	return entries;
 }
 static Array* getDiscs(char* path){
-	
+
 	// TODO: does path have SDCARD_PATH prefix?
-	
+
 	Array* entries = Array_new();
-	
+
 	char base_path[256];
 	strcpy(base_path, path);
 	char* tmp = strrchr(base_path, '/') + 1;
 	tmp[0] = '\0';
-	
+
 	// TODO: limit number of discs supported (to 9?)
 	FILE* file = fopen(path, "r");
 	if (file) {
@@ -815,10 +816,10 @@ static Array* getDiscs(char* path){
 			normalizeNewline(line);
 			trimTrailingNewlines(line);
 			if (strlen(line)==0) continue; // skip empty lines
-			
+
 			char disc_path[256];
 			sprintf(disc_path, "%s%s", base_path, line);
-						
+
 			if (exists(disc_path)) {
 				disc += 1;
 				Entry* entry = Entry_new(disc_path, ENTRY_ROM);
@@ -840,7 +841,7 @@ static int getFirstDisc(char* m3u_path, char* disc_path) { // based on getDiscs(
 	strcpy(base_path, m3u_path);
 	char* tmp = strrchr(base_path, '/') + 1;
 	tmp[0] = '\0';
-	
+
 	FILE* file = fopen(m3u_path, "r");
 	if (file) {
 		char line[256];
@@ -848,9 +849,9 @@ static int getFirstDisc(char* m3u_path, char* disc_path) { // based on getDiscs(
 			normalizeNewline(line);
 			trimTrailingNewlines(line);
 			if (strlen(line)==0) continue; // skip empty lines
-			
+
 			sprintf(disc_path, "%s%s", base_path, line);
-						
+
 			if (exists(disc_path)) found = 1;
 			break;
 		}
@@ -901,7 +902,7 @@ static int isConsoleDir(char* path) {
 	strcpy(parent_dir, path);
 	tmp = strrchr(parent_dir, '/');
 	tmp[0] = '\0';
-	
+
 	return exactMatch(parent_dir, ROMS_PATH);
 }
 
@@ -914,8 +915,8 @@ static Array* getEntries(char* path){
 		char* tmp = strrchr(collated_path, '(');
 		// 1 because we want to keep the opening parenthesis to avoid collating "Game Boy Color" and "Game Boy Advance" into "Game Boy"
 		// but conditional so we can continue to support a bare tag name as a folder name
-		if (tmp) tmp[1] = '\0'; 
-		
+		if (tmp) tmp[1] = '\0';
+
 		DIR *dh = opendir(ROMS_PATH);
 		if (dh!=NULL) {
 			struct dirent *dp;
@@ -927,7 +928,7 @@ static Array* getEntries(char* path){
 				if (hide(dp->d_name)) continue;
 				if (dp->d_type!=DT_DIR) continue;
 				strcpy(tmp, dp->d_name);
-			
+
 				if (!prefixMatch(collated_path, full_path)) continue;
 				addEntries(entries, full_path);
 			}
@@ -935,7 +936,7 @@ static Array* getEntries(char* path){
 		}
 	}
 	else addEntries(entries, path); // just a subfolder
-	
+
 	EntryArray_sort(entries);
 	return entries;
 }
@@ -990,9 +991,9 @@ static void readyResumePath(char* rom_path, int type) {
 	can_resume = 0;
 	char path[256];
 	strcpy(path, rom_path);
-	
+
 	if (!prefixMatch(ROMS_PATH, path)) return;
-	
+
 	char auto_path[256];
 	if (type==ENTRY_DIR) {
 		if (!hasCue(path, auto_path)) { // no cue?
@@ -1002,7 +1003,7 @@ static void readyResumePath(char* rom_path, int type) {
 		}
 		strcpy(path, auto_path); // cue or m3u if one exists
 	}
-	
+
 	if (!suffixMatch(".m3u", path)) {
 		char m3u_path[256];
 		if (hasM3u(path, m3u_path)) {
@@ -1010,16 +1011,16 @@ static void readyResumePath(char* rom_path, int type) {
 			strcpy(path, m3u_path);
 		}
 	}
-	
+
 	char emu_name[256];
 	getEmuName(path, emu_name);
-	
+
 	char rom_file[256];
 	tmp = strrchr(path, '/') + 1;
 	strcpy(rom_file, tmp);
-	
+
 	sprintf(slot_path, "%s/.minui/%s/%s.txt", SHARED_USERDATA_PATH, emu_name, rom_file); // /.userdata/.minui/<EMU>/<romname>.ext.txt
-	
+
 	can_resume = exists(slot_path);
 }
 static void readyResume(Entry* entry) {
@@ -1033,28 +1034,28 @@ static int autoResume(void) {
 	// NOTE: bypasses recents
 
 	if (!exists(AUTO_RESUME_PATH)) return 0;
-	
+
 	char path[256];
 	getFile(AUTO_RESUME_PATH, path, 256);
 	unlink(AUTO_RESUME_PATH);
 	sync();
-	
+
 	// make sure rom still exists
 	char sd_path[256];
 	sprintf(sd_path, "%s%s", SDCARD_PATH, path);
 	if (!exists(sd_path)) return 0;
-	
+
 	// make sure emu still exists
 	char emu_name[256];
 	getEmuName(sd_path, emu_name);
-	
+
 	char emu_path[256];
 	getEmuPath(emu_name, emu_path);
-	
+
 	if (!exists(emu_path)) return 0;
-	
+
 	// putFile(LAST_PATH, FAUX_RECENT_PATH); // saveLast() will crash here because top is NULL
-	
+
 	char cmd[256];
 	sprintf(cmd, "'%s' '%s'", escapeSingleQuotes(emu_path), escapeSingleQuotes(sd_path));
 	putInt(RESUME_SLOT_PATH, AUTO_RESUME_SLOT);
@@ -1063,29 +1064,29 @@ static int autoResume(void) {
 }
 
 static void openPak(char* path) {
-	// NOTE: escapeSingleQuotes() modifies the passed string 
+	// NOTE: escapeSingleQuotes() modifies the passed string
 	// so we need to save the path before we call that
 	// if (prefixMatch(ROMS_PATH, path)) {
 	// 	addRecent(path);
 	// }
 	saveLast(path);
-	
+
 	char cmd[256];
 	sprintf(cmd, "'%s/launch.sh'", escapeSingleQuotes(path));
 	queueNext(cmd);
 }
 static void openRom(char* path, char* last) {
 	LOG_info("openRom(%s,%s)\n", path, last);
-	
+
 	char sd_path[256];
 	strcpy(sd_path, path);
-	
+
 	char m3u_path[256];
 	int has_m3u = hasM3u(sd_path, m3u_path);
-	
+
 	char recent_path[256];
 	strcpy(recent_path, has_m3u ? m3u_path : sd_path);
-	
+
 	if (has_m3u && suffixMatch(".m3u", sd_path)) {
 		getFirstDisc(m3u_path, sd_path);
 	}
@@ -1102,7 +1103,7 @@ static void openRom(char* path, char* last) {
 		if (has_m3u) {
 			char rom_file[256];
 			strcpy(rom_file, strrchr(m3u_path, '/') + 1);
-			
+
 			// get disc for state
 			char disc_path_path[256];
 			sprintf(disc_path_path, "%s/.minui/%s/%s.%s.txt", SHARED_USERDATA_PATH, emu_name, rom_file, slot); // /.userdata/arm-480/.minui/<EMU>/<romname>.ext.0.txt
@@ -1121,15 +1122,15 @@ static void openRom(char* path, char* last) {
 		}
 	}
 	else putInt(RESUME_SLOT_PATH,8); // resume hidden default state
-	
+
 	char emu_path[256];
 	getEmuPath(emu_name, emu_path);
-	
-	// NOTE: escapeSingleQuotes() modifies the passed string 
+
+	// NOTE: escapeSingleQuotes() modifies the passed string
 	// so we need to save the path before we call that
 	addRecent(recent_path, recent_alias); // yiiikes
 	saveLast(last==NULL ? sd_path : last);
-	
+
 	char cmd[256];
 	sprintf(cmd, "'%s' '%s'", escapeSingleQuotes(emu_path), escapeSingleQuotes(sd_path));
 	queueNext(cmd);
@@ -1153,7 +1154,7 @@ static void openDirectory(char* path, int auto_launch) {
 		}
 		// TODO: doesn't handle empty m3u files
 	}
-	
+
 	int selected = 0;
 	int start = selected;
 	int end = 0;
@@ -1164,10 +1165,10 @@ static void openDirectory(char* path, int auto_launch) {
 			end = restore_end;
 		}
 	}
-	
+
 	top = Directory_new(path, selected);
 	top->start = start;
-	top->end = end ? end : ((top->entries->count<MAIN_ROW_COUNT) ? top->entries->count : MAIN_ROW_COUNT);
+	top->end = end ? end : ((top->entries->count<main_row_count) ? top->entries->count : main_row_count);
 
 	Array_push(stack, top);
 }
@@ -1188,10 +1189,10 @@ static void Entry_open(Entry* self) {
 		if (prefixMatch(COLLECTIONS_PATH, top->path)) {
 			char* tmp;
 			char filename[256];
-			
+
 			tmp = strrchr(self->path, '/');
 			if (tmp) strcpy(filename, tmp+1);
-			
+
 			char last_path[256];
 			sprintf(last_path, "%s/%s", top->path, filename);
 			last = last_path;
@@ -1223,23 +1224,23 @@ static void loadLast(void) { // call after loading root directory
 
 	char last_path[256];
 	getFile(LAST_PATH, last_path, 256);
-	
+
 	char full_path[256];
 	strcpy(full_path, last_path);
-	
+
 	char* tmp;
 	char filename[256];
 	tmp = strrchr(last_path, '/');
 	if (tmp) strcpy(filename, tmp);
-	
+
 	Array* last = Array_new();
 	while (!exactMatch(last_path, SDCARD_PATH)) {
 		Array_push(last, strdup(last_path));
-		
+
 		char* slash = strrchr(last_path, '/');
 		last_path[(slash-last_path)] = '\0';
 	}
-	
+
 	while (last->count>0) {
 		char* path = Array_pop(last);
 		if (!exactMatch(path, ROMS_PATH)) { // romsDir is effectively root as far as restoring state after a game
@@ -1250,23 +1251,23 @@ static void loadLast(void) { // call after loading root directory
 				tmp = strrchr(collated_path, '(');
 				if (tmp) tmp[1] = '\0'; // 1 because we want to keep the opening parenthesis to avoid collating "Game Boy Color" and "Game Boy Advance" into "Game Boy"
 			}
-			
+
 			for (int i=0; i<top->entries->count; i++) {
 				Entry* entry = top->entries->items[i];
-			
+
 				// NOTE: strlen() is required for collated_path, '\0' wasn't reading as NULL for some reason
 				if (exactMatch(entry->path, path) || (strlen(collated_path) && prefixMatch(collated_path, entry->path)) || (prefixMatch(COLLECTIONS_PATH, full_path) && suffixMatch(filename, entry->path))) {
 					top->selected = i;
 					if (i>=top->end) {
 						top->start = i;
-						top->end = top->start + MAIN_ROW_COUNT;
+						top->end = top->start + main_row_count;
 						if (top->end>top->entries->count) {
 							top->end = top->entries->count;
-							top->start = top->end - MAIN_ROW_COUNT;
+							top->start = top->end - main_row_count;
 						}
 					}
 					if (last->count==0 && !exactMatch(entry->path, FAUX_RECENT_PATH) && !(!exactMatch(entry->path, COLLECTIONS_PATH) && prefixMatch(COLLECTIONS_PATH, entry->path))) break; // don't show contents of auto-launch dirs
-				
+
 					if (entry->type==ENTRY_DIR) {
 						openDirectory(entry->path, 0);
 						break;
@@ -1276,7 +1277,7 @@ static void loadLast(void) { // call after loading root directory
 		}
 		free(path); // we took ownership when we popped it
 	}
-	
+
 	StringArray_free(last);
 }
 
@@ -1298,21 +1299,21 @@ static void Menu_quit(void) {
 
 int main (int argc, char *argv[]) {
 	if (autoResume()) return 0; // nothing to do
-	
+
 	simple_mode = exists(SIMPLE_MODE_PATH);
 
 	LOG_info("MinUI\n");
 	InitSettings();
-	
+
 	SDL_Surface* screen = GFX_init(MODE_MAIN);
 	PAD_init();
 	PWR_init();
 	if (!HAS_POWER_BUTTON && !simple_mode) PWR_disableSleep();
-	
+
 	SDL_Surface* version = NULL;
-	
+
 	Menu_init();
-	
+
 	// now that (most of) the heavy lifting is done, take a load off
 	PWR_setCPUSpeed(CPU_SPEED_MENU);
 	GFX_setVsync(VSYNC_STRICT);
@@ -1325,18 +1326,18 @@ int main (int argc, char *argv[]) {
 	while (!quit) {
 		GFX_startFrame();
 		unsigned long now = SDL_GetTicks();
-		
+
 		PAD_poll();
-			
+
 		int selected = top->selected;
 		int total = top->entries->count;
-		
+
 		PWR_update(&dirty, &show_setting, NULL, NULL);
-		
+
 		int is_online = PLAT_isOnline();
 		if (was_online!=is_online) dirty = 1;
 		was_online = is_online;
-		
+
 		if (show_version) {
 			if (PAD_justPressed(BTN_B) || PAD_tappedMenu(now)) {
 				show_version = 0;
@@ -1359,9 +1360,9 @@ int main (int argc, char *argv[]) {
 						selected -= 1;
 						if (selected<0) {
 							selected = total-1;
-							int start = total - MAIN_ROW_COUNT;
+							int start = total - main_row_count;
 							top->start = (start<0) ? 0 : start;
-							top->end = total; 
+							top->end = total;
 						}
 						else if (selected<top->start) {
 							top->start -= 1;
@@ -1378,7 +1379,7 @@ int main (int argc, char *argv[]) {
 						if (selected>=total) {
 							selected = 0;
 							top->start = 0;
-							top->end = (total<MAIN_ROW_COUNT) ? total : MAIN_ROW_COUNT;
+							top->end = (total<main_row_count) ? total : main_row_count;
 						}
 						else if (selected>=top->end) {
 							top->start += 1;
@@ -1387,44 +1388,44 @@ int main (int argc, char *argv[]) {
 					}
 				}
 				if (PAD_justRepeated(BTN_LEFT)) {
-					selected -= MAIN_ROW_COUNT;
+					selected -= main_row_count;
 					if (selected<0) {
 						selected = 0;
 						top->start = 0;
-						top->end = (total<MAIN_ROW_COUNT) ? total : MAIN_ROW_COUNT;
+						top->end = (total<main_row_count) ? total : main_row_count;
 					}
 					else if (selected<top->start) {
-						top->start -= MAIN_ROW_COUNT;
+						top->start -= main_row_count;
 						if (top->start<0) top->start = 0;
-						top->end = top->start + MAIN_ROW_COUNT;
+						top->end = top->start + main_row_count;
 					}
 				}
 				else if (PAD_justRepeated(BTN_RIGHT)) {
-					selected += MAIN_ROW_COUNT;
+					selected += main_row_count;
 					if (selected>=total) {
 						selected = total-1;
-						int start = total - MAIN_ROW_COUNT;
+						int start = total - main_row_count;
 						top->start = (start<0) ? 0 : start;
 						top->end = total;
 					}
 					else if (selected>=top->end) {
-						top->end += MAIN_ROW_COUNT;
+						top->end += main_row_count;
 						if (top->end>total) top->end = total;
-						top->start = top->end - MAIN_ROW_COUNT;
+						top->start = top->end - main_row_count;
 					}
 				}
 			}
-		
+
 			if (PAD_justRepeated(BTN_L1) && !PAD_isPressed(BTN_R1) && !PWR_ignoreSettingInput(BTN_L1, show_setting)) { // previous alpha
 				Entry* entry = top->entries->items[selected];
 				int i = entry->alpha-1;
 				if (i>=0) {
 					selected = top->alphas->items[i];
-					if (total>MAIN_ROW_COUNT) {
+					if (total>main_row_count) {
 						top->start = selected;
-						top->end = top->start + MAIN_ROW_COUNT;
+						top->end = top->start + main_row_count;
 						if (top->end>total) top->end = total;
-						top->start = top->end - MAIN_ROW_COUNT;
+						top->start = top->end - main_row_count;
 					}
 				}
 			}
@@ -1433,20 +1434,20 @@ int main (int argc, char *argv[]) {
 				int i = entry->alpha+1;
 				if (i<top->alphas->count) {
 					selected = top->alphas->items[i];
-					if (total>MAIN_ROW_COUNT) {
+					if (total>main_row_count) {
 						top->start = selected;
-						top->end = top->start + MAIN_ROW_COUNT;
+						top->end = top->start + main_row_count;
 						if (top->end>total) top->end = total;
-						top->start = top->end - MAIN_ROW_COUNT;
+						top->start = top->end - main_row_count;
 					}
 				}
 			}
-	
+
 			if (selected!=top->selected) {
 				top->selected = selected;
 				dirty = 1;
 			}
-	
+
 			if (dirty && total>0) readyResume(top->entries->items[top->selected]);
 
 			if (total>0 && can_resume && PAD_justReleased(BTN_RESUME)) {
@@ -1469,30 +1470,30 @@ int main (int argc, char *argv[]) {
 				if (total>0) readyResume(top->entries->items[top->selected]);
 			}
 		}
-		
+
 		if (dirty) {
 			GFX_clear(screen);
-			
+
 			int ox;
 			int oy;
-			
-			// simple thumbnail support a thumbnail for a file or folder named NAME.EXT needs a corresponding /.res/NAME.EXT.png 
+
+			// simple thumbnail support a thumbnail for a file or folder named NAME.EXT needs a corresponding /.res/NAME.EXT.png
 			// that is no bigger than platform FIXED_HEIGHT x FIXED_HEIGHT
 			int had_thumb = 0;
 			if (!show_version && total>0) {
 				Entry* entry = top->entries->items[top->selected];
 				char res_path[MAX_PATH];
-				
+
 				char res_root[MAX_PATH];
 				strcpy(res_root, entry->path);
-				
+
 				char tmp_path[MAX_PATH];
 				strcpy(tmp_path, entry->path);
 				char* res_name = strrchr(tmp_path, '/') + 1;
 
 				char* tmp = strrchr(res_root, '/');
 				tmp[0] = '\0';
-				
+
 				sprintf(res_path, "%s/.res/%s.png", res_root, res_name);
 				LOG_info("res_path: %s\n", res_path);
 				if (exists(res_path)) {
@@ -1504,36 +1505,36 @@ int main (int argc, char *argv[]) {
 					SDL_FreeSurface(thumb);
 				}
 			}
-			
+
 			int ow = GFX_blitHardwareGroup(screen, show_setting);
-			
+
 			if (show_version) {
 				if (!version) {
 					char release[256];
 					getFile(ROOT_SYSTEM_PATH "/version.txt", release, 256);
-					
+
 					char *tmp,*commit;
 					commit = strrchr(release, '\n');
 					commit[0] = '\0';
 					commit = strrchr(release, '\n')+1;
 					tmp = strchr(release, '\n');
 					tmp[0] = '\0';
-					
+
 					// TODO: not sure if I want bare PLAT_* calls here
 					char* extra_key = "Model";
-					char* extra_val = PLAT_getModel(); 
-					
+					char* extra_val = PLAT_getModel();
+
 					SDL_Surface* release_txt = TTF_RenderUTF8_Blended(font.large, "Release", COLOR_DARK_TEXT);
 					SDL_Surface* version_txt = TTF_RenderUTF8_Blended(font.large, release, COLOR_WHITE);
 					SDL_Surface* commit_txt = TTF_RenderUTF8_Blended(font.large, "Commit", COLOR_DARK_TEXT);
 					SDL_Surface* hash_txt = TTF_RenderUTF8_Blended(font.large, commit, COLOR_WHITE);
-					
+
 					SDL_Surface* key_txt = TTF_RenderUTF8_Blended(font.large, extra_key, COLOR_DARK_TEXT);
 					SDL_Surface* val_txt = TTF_RenderUTF8_Blended(font.large, extra_val, COLOR_WHITE);
-					
+
 					int l_width = 0;
 					int r_width = 0;
-					
+
 					if (release_txt->w>l_width) l_width = release_txt->w;
 					if (commit_txt->w>l_width) l_width = commit_txt->w;
 					if (key_txt->w>l_width) l_width = commit_txt->w;
@@ -1541,21 +1542,21 @@ int main (int argc, char *argv[]) {
 					if (version_txt->w>r_width) r_width = version_txt->w;
 					if (hash_txt->w>r_width) r_width = hash_txt->w;
 					if (val_txt->w>r_width) r_width = val_txt->w;
-					
+
 					#define VERSION_LINE_HEIGHT 24
 					int x = l_width + SCALE1(8);
 					int w = x + r_width;
 					int h = SCALE1(VERSION_LINE_HEIGHT*4);
 					version = SDL_CreateRGBSurface(0,w,h,16,0,0,0,0);
-					
+
 					SDL_BlitSurface(release_txt, NULL, version, &(SDL_Rect){0, 0});
 					SDL_BlitSurface(version_txt, NULL, version, &(SDL_Rect){x,0});
 					SDL_BlitSurface(commit_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT)});
 					SDL_BlitSurface(hash_txt, NULL, version, &(SDL_Rect){x,SCALE1(VERSION_LINE_HEIGHT)});
-					
+
 					SDL_BlitSurface(key_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT*3)});
 					SDL_BlitSurface(val_txt, NULL, version, &(SDL_Rect){x,SCALE1(VERSION_LINE_HEIGHT*3)});
-					
+
 					SDL_FreeSurface(release_txt);
 					SDL_FreeSurface(version_txt);
 					SDL_FreeSurface(commit_txt);
@@ -1564,12 +1565,18 @@ int main (int argc, char *argv[]) {
 					SDL_FreeSurface(val_txt);
 				}
 				SDL_BlitSurface(version, NULL, screen, &(SDL_Rect){(screen->w-version->w)/2,(screen->h-version->h)/2});
-				
+
 				// buttons (duped and trimmed from below)
-				if (show_setting && !GetHDMI()) GFX_blitHardwareHints(screen, show_setting);
-				else GFX_blitButtonGroup((char*[]){ BTN_SLEEP==BTN_POWER?"POWER":"MENU","SLEEP",  NULL }, 0, screen, 0);
-				
-				GFX_blitButtonGroup((char*[]){ "B","BACK",  NULL }, 0, screen, 1);
+				if (show_setting && !GetHDMI()) {
+					GFX_blitHardwareHints(screen, show_setting);
+				}
+				else if (SHOW_BUTTON_HINTS) {
+					GFX_blitButtonGroup((char*[]){ BTN_SLEEP==BTN_POWER?"POWER":"MENU","SLEEP",  NULL }, 0, screen, 0);
+				}
+
+				if (SHOW_BUTTON_HINTS) {
+					GFX_blitButtonGroup((char*[]){ "B","BACK",  NULL }, 0, screen, 1);
+				}
 			}
 			else {
 				// list
@@ -1580,12 +1587,12 @@ int main (int argc, char *argv[]) {
 						char* entry_name = entry->name;
 						char* entry_unique = entry->unique;
 						int available_width = (had_thumb && j!=selected_row ? ox : screen->w) - SCALE1(PADDING * 2);
-						if (i==top->start && !(had_thumb && j!=selected_row)) available_width -= ow; // 
-					
+						if (i==top->start && !(had_thumb && j!=selected_row)) available_width -= ow; //
+
 						SDL_Color text_color = COLOR_WHITE;
-					
+
 						trimSortingMeta(&entry_name);
-					
+
 						char display_name[256];
 						int text_width = GFX_truncateText(font.large, entry_unique ? entry_unique : entry_name, display_name, available_width, SCALE1(BUTTON_PADDING*2));
 						int max_width = MIN(available_width, text_width);
@@ -1602,7 +1609,7 @@ int main (int argc, char *argv[]) {
 							trimSortingMeta(&entry_unique);
 							char unique_name[256];
 							GFX_truncateText(font.large, entry_unique, unique_name, available_width, SCALE1(BUTTON_PADDING*2));
-						
+
 							SDL_Surface* text = TTF_RenderUTF8_Blended(font.large, unique_name, COLOR_DARK_TEXT);
 							SDL_BlitSurface(text, &(SDL_Rect){
 								0,
@@ -1613,7 +1620,7 @@ int main (int argc, char *argv[]) {
 								SCALE1(PADDING+BUTTON_PADDING),
 								SCALE1(PADDING+(j*PILL_SIZE)+4)
 							});
-						
+
 							GFX_truncateText(font.large, entry_name, display_name, available_width, SCALE1(BUTTON_PADDING*2));
 						}
 						SDL_Surface* text = TTF_RenderUTF8_Blended(font.large, display_name, text_color);
@@ -1633,15 +1640,15 @@ int main (int argc, char *argv[]) {
 					// TODO: for some reason screen's dimensions end up being 0x0 in GFX_blitMessage...
 					GFX_blitMessage(font.large, "Empty folder", screen, &(SDL_Rect){0,0,screen->w,screen->h}); //, NULL);
 				}
-			
+
 				// buttons
 				if (show_setting && !GetHDMI()) GFX_blitHardwareHints(screen, show_setting);
 				else if (can_resume) GFX_blitButtonGroup((char*[]){ "X","RESUME",  NULL }, 0, screen, 0);
-				else GFX_blitButtonGroup((char*[]){ 
+				else GFX_blitButtonGroup((char*[]){
 					BTN_SLEEP==BTN_POWER?"POWER":"MENU",
-					BTN_SLEEP==BTN_POWER||simple_mode?"SLEEP":"INFO",  
+					BTN_SLEEP==BTN_POWER||simple_mode?"SLEEP":"INFO",
 					NULL }, 0, screen, 0);
-			
+
 				if (total==0) {
 					if (stack->count>1) {
 						GFX_blitButtonGroup((char*[]){ "B","BACK",  NULL }, 0, screen, 1);
@@ -1661,7 +1668,7 @@ int main (int argc, char *argv[]) {
 			dirty = 0;
 		}
 		else GFX_sync();
-		
+
 		// handle HDMI change
 		static int had_hdmi = -1;
 		int has_hdmi = GetHDMI();
@@ -1676,7 +1683,7 @@ int main (int argc, char *argv[]) {
 			quit = 1;
 		}
 	}
-	
+
 	if (version) SDL_FreeSurface(version);
 
 	Menu_quit();

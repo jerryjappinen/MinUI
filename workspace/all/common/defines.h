@@ -55,6 +55,10 @@
 #define SETTINGS_SIZE 4
 #define SETTINGS_WIDTH 80
 
+#ifndef SHOW_BUTTON_HINTS
+#define SHOW_BUTTON_HINTS 0
+#endif
+
 #ifndef MAIN_ROW_COUNT
 #define MAIN_ROW_COUNT 6 // FIXED_HEIGHT / (PILL_SIZE * FIXED_SCALE) - 2 (floor and subtract 1 if not an integer)
 #endif
